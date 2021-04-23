@@ -1,0 +1,40 @@
+image:
+  file: .gitpod.Dockerfile
+
+tasks:
+  - name: prebuild
+    prebuild: |
+      sudo docker-up >/dev/null 2>&1 &
+      DOCKERPID=$!
+      while ! docker ps >/dev/null 2>&1; do sleep 1; done
+      export DDEV_NONINTERACTIVE=true
+      make
+      mkdir -p /workspace/simpleproj && cd /workspace/simpleproj && ddev config --auto && cp ~/bin/gitpod-setup-ddev.sh .ddev && printf "<?php\nphpinfo();\n" >index.php &&.ddev/gitpod-setup-ddev.sh
+      sudo kill $DOCKERPID
+  - name: terminal
+    command: |
+      sudo docker-up >/dev/null 2>&1 &
+      while ! docker ps >/dev/null 2>&1; do sleep 1; done
+      ddev start -y simpleproj
+vscode:
+  extensions:
+    - premparihar.gotestexplorer@0.1.10:jvUM8akrQ67vQxfjaxCgCg==
+
+github:
+  prebuilds:
+    # enable for the master/default branch (defaults to true)
+    master: true
+    # enable for all branches in this repo (defaults to false)
+    branches: true
+    # enable for pull requests coming from this repo (defaults to true)
+    pullRequests: true
+    # enable for pull requests coming from forks (defaults to false)
+    pullRequestsFromForks: true
+    # add a check to pull requests (defaults to true)
+    addCheck: true
+    # add a "Review in Gitpod" button as a comment to pull requests (defaults to false)
+    addComment: true
+    # add a "Review in Gitpod" button to the pull request's description (defaults to false)
+    addBadge: true
+    # add a label once the prebuild is ready to pull requests (defaults to false)
+    addLabel: true
